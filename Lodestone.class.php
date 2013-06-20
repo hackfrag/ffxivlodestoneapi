@@ -3,9 +3,9 @@
  * Master class for the FFXIV:ARR Lodestone API
  * @author Jurmarcus Allen <methylenebl@gmail.com>
  * @copyright Copyright (c) 2013, Jurmarcus Allen <Methylene>, https://github.com/MethyleneBL/ffxivlodestoneapi
- * @version 3.5.1
+ * @version 0.5.0
  */
-require_once('./vendors/simplehtml/simple_html_dom.php');
+require_once('vendors/simplehtml/simple_html_dom.php');
 require_once('FFXIVConnect.class.php');
 require_once('Character.class.php');
 require_once('Linkshell.class.php');

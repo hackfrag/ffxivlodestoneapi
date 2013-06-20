@@ -17,6 +17,7 @@ class Character {
    private $guardian;
    private $cityState;
    private $grandCompany;
+   private $gcRank;
    private $freeCompany;
    private $stats;
    private $attributes;
@@ -73,25 +74,29 @@ class Character {
          $classes = array();
          
          foreach($html->find('div.base_inner div table.class_list tbody tr') as $class) {
-            $classes[strtolower($class->find('td',0)->plaintext)] = array(["icon"] => $class->find('td img',0),
-                                                                          ["lvl"]  => $class->find('td',1)->plaintext,
-                                                                          ["exp"]  => $class->find('td',2)->plaintext);
+            $classes[strtolower($class->find('td',0)->plaintext)] = array("icon" => $class->find('td img',0),
+                                                                          "lvl"  => $class->find('td',1)->plaintext,
+                                                                          "exp"  => $class->find('td',2)->plaintext);
             if($class->find('td',3)->innertext != ""){
-               $classes[strtolower($class->find('td',0)->plaintext)] = array(["icon"] => $class->find('td img',1),
-                                                                             ["lvl"]  => $class->find('td',4)->plaintext,
-                                                                             ["exp"]  => $class->find('td',5)->plaintext);
+               $classes[strtolower($class->find('td',0)->plaintext)] = array("icon" => $class->find('td img',1),
+                                                                             "lvl"  => $class->find('td',4)->plaintext,
+                                                                             "exp"  => $class->find('td',5)->plaintext);
             }
          }
          
          //Gear
          $gear = array();
          foreach($html->find('div.param_right_area div#chara_img_area div.icon_area div.ic_reflection_box') as $item) {
-            foreach($gear->find('div.item_detail_box div.popup_w412_header_gold div.popup_w412_footer_gold div.popup_w412_body_gold') as $gear_details){
-               $gear[] = array(["icon"]   =>$gear->find('img.ic_reflection',0),
-                               ["name"]   =>$gear_details->find('div div.name_area h2.item_name',0)->plaintext,
-                               ["data"]   =>$gear_details,
+            foreach($item->find('div.item_detail_box div.popup_w412_header_gold div.popup_w412_footer_gold div.popup_w412_body_gold') as $gear_details){
+               $gear[] = array("icon"   =>$item->find('img.ic_reflection',0),
+                               "name"   =>$gear_details->find('div div.name_area h2.item_name',0)->plaintext,
+                               "data"   =>$gear_details,
                         );
             }
+         }
+         
+         if($html->find('ul.chara_profile_list li strong',3)->plaintext!= ""){
+            $GC = explode("/", $html->find('ul.chara_profile_list li strong',3)->plaintext);   
          }
          
          $this->name          = $name;
@@ -101,8 +106,10 @@ class Character {
          $this->nameday       = $html->find('ul.chara_profile_list li strong',0)->plaintext;
          $this->guardian      = $html->find('ul.chara_profile_list li strong',1)->plaintext;
          $this->cityState     = $html->find('ul.chara_profile_list li strong',2)->plaintext;
-         $this->grandCompany  = $html->find('ul.chara_profile_list li strong',3)->plaintext;
-         $this->freeCompany   = $html->find('ul.chara_profile_list li strong',3)->plaintext;
+         
+         $this->grandCompany  = $GC[0];
+         $this->gcRank        = $GC[1];
+         $this->freeCompany   = $html->find('ul.chara_profile_list li strong',4)->plaintext;
          $this->thumbnail     = $html->find('div.area_footer div.thumb_cont_black_40 img',0);
          $this->picture       = $html->find('div.param_right_area div#chara_img_area div.img_area img',0);
          $this->stats         = $stats;
@@ -115,6 +122,13 @@ class Character {
          return FALSE;
       }
       return TRUE;
+   }
+   
+   public function getThumbnail(){
+      return $this->thumbnail;
+   }
+   public function getPicture(){
+      return $this->picture;
    }
    
    public function getName(){
@@ -147,6 +161,10 @@ class Character {
    
    public function getGrandCompany(){
       return $this->grandCompany;
+   }
+   
+   public function getGCRank(){
+      return $this->gcRank;
    }
    
    public function getFreeCompany(){

@@ -38,6 +38,7 @@ class FreeCompany {
          $this->size          = str_replace(array("Members ([","] Total)"), "", $html->find('div.area_footer div.clearfix div.select_index_left h3',0)->plaintext);
          
          $this->buildMembers();
+         
       } else {
          return FALSE;
       }
@@ -58,9 +59,11 @@ class FreeCompany {
          $member["icon"]            = $member_row->find('th div img',0);
          $member["name"]            = $member_row->find('td div.player_name_area h4.player_name_gold a',0)->plaintext;
          $member["server"]          = str_replace(array("(",")"), "", $member_row->find('td div.player_name_area h4.player_name_gold span',0)->plaintext);
+         $member["rankSort"]        = $member_row->find('td div.player_name_area div.fc_member_status',0)->plaintext;
+         $member["lvlSort"]         = $member_row->find('td div.col2box div.col2box_left',0)->plaintext;
          
          $member["class"]["icon"]   = $member_row->find('td div.col2box div.col2box_left img',0);
-         $member["class"]["level"]  = $member_row->find('td div.col2box div.col2box_left',0)->plaintext;
+         $member["class"]["lvl"]  = $member_row->find('td div.col2box div.col2box_left',0)->plaintext;
          
          $member["rank"]["icon"]    = $member_row->find('td div.player_name_area div.fc_member_status img',0);
          $member["rank"]["rank"]    = $member_row->find('td div.player_name_area div.fc_member_status',0)->plaintext;
@@ -68,14 +71,31 @@ class FreeCompany {
          $members[] = $member;
       }
       
-      $this->members = array_merge($old_members, $members);
+      if(is_array($old_members)){
+         $this->members = array_merge($old_members, $members);   
+      } else {
+         $this->members = $members;
+      }
+      
       $this->getNext();
    }
    
+   private function orderMembers() {
+      $members = $this->members;
+      $lvl = array();
+      
+      foreach($members as $key => $row){
+         $lvl[$key] = $row['lvlSort'];
+      }
+      array_multisort($lvl, SORT_DESC, $members);
+      
+      $this->members = $members;
+   }
+   
    private function getNext() {
-      if($next = $this->freeCompanyData->find('div.base_footer div.base_body div.base_inner div.mb10 div.pager div.pagination ul li.next a',0)->href) {
+      if($next = $this->freeCompanyData->find('div.base_footer div.base_body div.base_inner div.mb10 div.pager div.pagination ul li.next a',0)) {
          $ffxivConnect = new FFXIVConnect($this->userAgent, $this->utf8);
-         $this->freeCompanyData = $ffxivConnect->getFreeCompany($this->lodestoneID, $this->region, $next);
+         $this->freeCompanyData = $ffxivConnect->getFreeCompany($this->lodestoneID, $this->region, $next->href);
          $this->buildMembers();
       }
       return FALSE;
@@ -89,7 +109,10 @@ class FreeCompany {
       return $this->size;
    }
    
-   public function getMembers(){
+   public function getMembers($sort=null){
+      if($sort){
+         $this->orderMembers();
+      }
       return $this->members;
    }
    
