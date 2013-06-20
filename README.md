@@ -1,2 +1,2 @@
-ffxivlodestoneapi
+FFXIV Lodestone API Beta
 =================
